@@ -1,7 +1,7 @@
 const rootUser = process.argv[2]
 const fileUtils = require('./file-utils')
 const _ = require('lodash')
-const analysisUtils = require('./analysis-utils')
+const { getLevels, getCounts, calculateScore } = require('./analysis-utils')
 const { removeDupes } = require('./object-utils')
 
 const PATH = 'data-bkp/'
@@ -20,7 +20,8 @@ const parseData = (levels, filteredList) => {
           data.push({
             name: screenName,
             size: 0,
-            imports
+            imports,
+            location: levelUser.location
           })
 
           added.push(screenName)
@@ -38,32 +39,6 @@ const getImports = (nextLevelUsers, currentIndex, filteredList) => {
     .filter((secondLevelUser) => filteredList.indexOf(secondLevelUser) !== -1)
 
   return imports
-}
-
-const filterData = (levels) => {
-  const counts = {}
-
-  levels.forEach((level) => {
-    level.forEach((levelUsers) => {
-      levelUsers.forEach((levelUser) => {
-        const screenName = levelUser.screen_name
-
-        if (counts[screenName]) {
-          counts[screenName] = counts[screenName] + 1
-        }
-
-        if (!counts[screenName]) {
-          counts[screenName] = 1
-        }
-      })
-    })
-  })
-
-  fileUtils.writeFile('counts.json', JSON.stringify(counts))
-
-  const filtered = filterUsers(counts, 50)
-
-  return { filtered, counts }
 }
 
 const filterUsers = (counts, limit = 10) => {
@@ -102,12 +77,16 @@ const validateCounts = (levels) => {
   })
 }
 
-analysisUtils.getLevels(rootUser, PATH).then((levels) => {
+getLevels(rootUser, PATH).then((levels) => {
   const firstLevelUsers = _.flatMap(levels[0])
 
   validateCounts(levels)
 
-  const { filtered, counts } = filterData(levels)
+  const counts = getCounts(levels)
+
+  fileUtils.writeFile('counts.json', JSON.stringify(counts))
+
+  const filtered = filterUsers(counts, 20)
   const firstLevelScreenNames = firstLevelUsers.map((user) => user.screen_name)
   const result = parseData(levels, filtered)
 
@@ -117,15 +96,28 @@ analysisUtils.getLevels(rootUser, PATH).then((levels) => {
     .map((node) => {
       return {
         name: node.name,
-        count: counts[node.name]
+        count: counts[node.name],
+        location: node.location
       }
     })
 
   const nonFollowedByRoot = general
     .filter((node) => firstLevelScreenNames.indexOf(node.name) === -1)
 
-  console.log(_.sortBy(general, 'count').reverse())
-  console.log(_.sortBy(nonFollowedByRoot, 'count').reverse())
+  // const score = calculateScore(levels, counts)
+  // const scoreList = Object.keys(score).map((screenName) => {
+  //   return {
+  //     screenName,
+  //     score: score[screenName]
+  //   }
+  // })
+  // .filter((node) => firstLevelScreenNames.indexOf(node.screenName) === -1)
+
+  // console.log(_.sortBy(general, 'count').reverse())
+  const countRanking = _.sortBy(nonFollowedByRoot, 'count').reverse()
+  // console.log(countRanking)
+  console.log(_.groupBy(countRanking, 'location'))
+  // console.log(_.sortBy(scoreList, 'score').reverse().slice(0, 50))
 }).catch((err) => {
   console.log(err)
   throw err

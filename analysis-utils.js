@@ -62,6 +62,56 @@ const getRootData = (rootUser, path) => {
   })
 }
 
+const getCounts = (levels) => {
+  const counts = {}
+
+  levels.forEach((level) => {
+    level.forEach((levelUsers) => {
+      levelUsers.forEach((levelUser) => {
+        const screenName = levelUser.screen_name
+
+        if (counts[screenName]) {
+          counts[screenName] = counts[screenName] + 1
+        }
+
+        if (!counts[screenName]) {
+          counts[screenName] = 1
+        }
+      })
+    })
+  })
+
+  return counts
+}
+
+const calculateScore = (levels, counts) => {
+  const score = {}
+
+  levels.forEach((level, levelIndex) => {
+    level.forEach((levelUsers, levelUserIndex) => {
+      levelUsers.forEach((levelUser) => {
+        const nextLevel = levels[levelIndex + 1]
+
+        if (nextLevel) {
+          const nextLevelUsers = nextLevel[levelUserIndex]
+
+          nextLevelUsers.forEach((nextLevelUser) => {
+            if (!score[nextLevelUser.screen_name]) {
+              score[nextLevelUser.screen_name] = 0
+            }
+
+            score[nextLevelUser.screen_name] += counts[levelUser.screen_name]
+          })
+        }
+      })
+    })
+  })
+
+  return score
+}
+
 module.exports = {
-  getLevels
+  getLevels,
+  calculateScore,
+  getCounts
 }
