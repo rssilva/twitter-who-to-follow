@@ -6,72 +6,56 @@ const { removeDupes } = require('./object-utils')
 
 const PATH = 'data-bkp/'
 
-const parseData = (firstLevelUsers, secondLevelUsers, filteredList) => {
+const parseData = (levels, filteredList) => {
   let data = []
   const added = []
 
-  firstLevelUsers.forEach((firstLevelUser, index) => {
-    const screenName = firstLevelUser.screen_name
-    const imports = secondLevelUsers[index]
-      .map((secondLevelUser) => secondLevelUser.screen_name)
-      .filter((secondLevelUser) => filteredList.indexOf(secondLevelUser) !== -1)
+  levels.forEach((level, levelIndex) => {
+    level.forEach((levelUsers) => {
+      levelUsers.forEach((levelUser) => {
+        const screenName = levelUser.screen_name
+        const imports = levelIndex > 0 ? [] : getImports(levels[levelIndex + 1], levelIndex, filteredList)
 
-    if (added.indexOf(screenName) === -1 && filteredList.indexOf(screenName) !== -1) {
-      data.push({
-        name: screenName,
-        size: 0,
-        imports
+        if (added.indexOf(screenName) === -1 && filteredList.indexOf(screenName) !== -1) {
+          data.push({
+            name: screenName,
+            size: 0,
+            imports
+          })
+
+          added.push(screenName)
+        }
       })
-
-      added.push(screenName)
-    }
-  })
-
-  secondLevelUsers.forEach((secondLevelUserFollowing) => {
-    secondLevelUserFollowing.forEach((secondLevelUser) => {
-      const screenName = secondLevelUser.screen_name
-
-      if (added.indexOf(screenName) === -1 && filteredList.indexOf(screenName) !== -1) {
-        data.push({
-          name: screenName,
-          size: 0,
-          imports: []
-        })
-
-        added.push(screenName)
-      }
     })
   })
 
   return data
 }
 
-const filterData = (firstLevelUsers, secondLevelUsers) => {
+const getImports = (nextLevelUsers, currentIndex, filteredList) => {
+  const imports = nextLevelUsers[currentIndex]
+    .map((levelUser) => levelUser.screen_name)
+    .filter((secondLevelUser) => filteredList.indexOf(secondLevelUser) !== -1)
+
+  return imports
+}
+
+const filterData = (levels) => {
   const counts = {}
 
-  firstLevelUsers.forEach((firstLevelUser) => {
-    const screenName = firstLevelUser.screen_name
+  levels.forEach((level) => {
+    level.forEach((levelUsers) => {
+      levelUsers.forEach((levelUser) => {
+        const screenName = levelUser.screen_name
 
-    if (counts[screenName]) {
-      counts[screenName] = counts[screenName] + 1
-    }
+        if (counts[screenName]) {
+          counts[screenName] = counts[screenName] + 1
+        }
 
-    if (!counts[screenName]) {
-      counts[screenName] = 1
-    }
-  })
-
-  secondLevelUsers.forEach((secondLevelUserFollowing) => {
-    secondLevelUserFollowing.forEach((secondLevelUser) => {
-      const screenName = secondLevelUser.screen_name
-
-      if (counts[screenName]) {
-        counts[screenName] = counts[screenName] + 1
-      }
-
-      if (!counts[screenName]) {
-        counts[screenName] = 1
-      }
+        if (!counts[screenName]) {
+          counts[screenName] = 1
+        }
+      })
     })
   })
 
@@ -99,7 +83,10 @@ const filterUsers = (counts, limit = 10) => {
   return toAdd
 }
 
-analysisUtils.getLevels(rootUser, PATH).then(([firstLevelUsers, secondLevelUsers]) => {
+const validateCounts = (levels) => {
+  const firstLevelUsers = _.flatMap(levels[0])
+  const secondLevelUsers = levels[1]
+
   const followingCounts = firstLevelUsers.map((user = {}, index) => {
     const screenName = user.screen_name
     const secondLevelData = secondLevelUsers[index]
@@ -113,15 +100,20 @@ analysisUtils.getLevels(rootUser, PATH).then(([firstLevelUsers, secondLevelUsers
       console.log('something wrong here?', item)
     }
   })
+}
 
-  const { filtered, counts } = filterData(firstLevelUsers, secondLevelUsers)
+analysisUtils.getLevels(rootUser, PATH).then((levels) => {
+  const firstLevelUsers = _.flatMap(levels[0])
+
+  validateCounts(levels)
+
+  const { filtered, counts } = filterData(levels)
   const firstLevelScreenNames = firstLevelUsers.map((user) => user.screen_name)
-  const result = parseData(firstLevelUsers, secondLevelUsers, filtered)
+  const result = parseData(levels, filtered)
 
   fileUtils.writeFile('result.json', JSON.stringify(result))
 
-  const nonFollowedByRoot = result
-    .filter((node) => firstLevelScreenNames.indexOf(node.name) === -1)
+  const general = result
     .map((node) => {
       return {
         name: node.name,
@@ -129,6 +121,10 @@ analysisUtils.getLevels(rootUser, PATH).then(([firstLevelUsers, secondLevelUsers
       }
     })
 
+  const nonFollowedByRoot = general
+    .filter((node) => firstLevelScreenNames.indexOf(node.name) === -1)
+
+  console.log(_.sortBy(general, 'count').reverse())
   console.log(_.sortBy(nonFollowedByRoot, 'count').reverse())
 }).catch((err) => {
   console.log(err)

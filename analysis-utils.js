@@ -4,7 +4,7 @@ const { removeDupes } = require('./object-utils')
 const PATH = 'data-bkp/'
 
 const getCurrentLevelData = (users, path, currentIndex = 0, nextLevelData = []) => {
-  const currentLevelUser = users[currentIndex]
+  const currentLevelUser = users[currentIndex][0]
 
   return fileUtils
     .readFile(`./${path}${currentLevelUser.screen_name}-following.json`)
@@ -58,7 +58,7 @@ const getRootData = (rootUser, path) => {
   return fileUtils.readFile(`./${path}${rootUser}-following.json`).then((data) => {
     const rootUserData = removeDupes(JSON.parse(data), 'id')
 
-    return rootUserData
+    return rootUserData.map((user) => [user])
   })
 }
 
