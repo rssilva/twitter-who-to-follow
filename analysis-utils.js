@@ -52,12 +52,6 @@ const getLevels = (rootUser, path = PATH) => {
         getCurrentLevelData(firstLevelUsers, path)
       ])
     })
-    .then(([firstLevelUsers, secondLevelUsers]) => {
-      return Promise.all([
-        firstLevelUsers,
-        secondLevelUsers
-      ])
-    })
 }
 
 const getRootData = (rootUser, path) => {
