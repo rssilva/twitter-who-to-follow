@@ -1,7 +1,8 @@
 const { describe, it, expect } = require('./setup')
-const { getLevels, getCounts, calculateScore, filterUsers, validateCounts } = require('../analysis-utils')
+const { getLevels, getCounts, calculateScore, filterUsers, validateCounts, parseData } = require('../analysis-utils')
 const scoreData = require('./fixtures/calculate-score-fixture')
 const validateCountsData = require('./fixtures/validate-counts-fixture')
+const parseDataData = require('./fixtures/parse-data-fixture')
 
 describe('analysis utils', () => {
   describe('getLevels', () => {
@@ -58,6 +59,31 @@ describe('analysis utils', () => {
   describe('validateCounts', () => {
     it('returns a list with users that has a difference between friends_count and the ones fetched by the api', () => {
       expect(validateCounts(validateCountsData.levels)).to.eql(['sam'])
+    })
+  })
+
+  describe('parseData', () => {
+    it ('parses data to d3 graph format according the passed list', () => {
+      const list = ['gandalf', 'arwen', 'elrond', 'frodo', 'galadriel']
+      const parsed = parseData(parseDataData.levels, list)
+
+      expect(parsed).to.eql([
+        {
+          name: 'gandalf',
+          size: 0,
+          imports: [ 'elrond', 'frodo', 'galadriel' ],
+          location: 'here and there'
+        },
+        {
+          name: 'arwen',
+          size: 0,
+          imports: [ 'elrond', 'frodo', 'galadriel' ],
+          location: 'rivendell'
+        },
+        { name: 'elrond', size: 0, imports: [], location: undefined },
+        { name: 'frodo', size: 0, imports: [], location: undefined },
+        { name: 'galadriel', size: 0, imports: [], location: undefined }
+      ])
     })
   })
 })

@@ -153,10 +153,48 @@ const validateCounts = (levels) => {
   return inconsistentUsers
 }
 
+// this method parses the levels data to the d3.js graph
+const parseData = (levels, toBeAdded) => {
+  let data = []
+  const added = []
+
+  levels.forEach((level, levelIndex) => {
+    level.forEach((levelUsers) => {
+      levelUsers.forEach((levelUser) => {
+        const screenName = levelUser.screen_name
+        const nextLevel = levels[levelIndex + 1]
+        const imports = levelIndex > 0 ? [] : getImports(nextLevel, levelIndex, toBeAdded)
+
+        if (added.indexOf(screenName) === -1 && toBeAdded.indexOf(screenName) !== -1) {
+          data.push({
+            name: screenName,
+            size: 0,
+            imports,
+            location: levelUser.location
+          })
+
+          added.push(screenName)
+        }
+      })
+    })
+  })
+
+  return data
+}
+
+const getImports = (nextLevelUsers, currentIndex, filteredList) => {
+  const imports = nextLevelUsers[currentIndex]
+    .map((levelUser) => levelUser.screen_name)
+    .filter((secondLevelUser) => filteredList.indexOf(secondLevelUser) !== -1)
+
+  return imports
+}
+
 module.exports = {
   getLevels,
   calculateScore,
   getCounts,
   filterUsers,
-  validateCounts
+  validateCounts,
+  parseData
 }
