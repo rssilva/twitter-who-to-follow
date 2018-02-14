@@ -1,6 +1,6 @@
 const fileUtils = require('./file-utils')
 const { removeDupes } = require('./object-utils')
-// const _ = require('lodash')
+const _ = require('lodash')
 const PATH = 'data-bkp/'
 
 const getCurrentLevelData = (users, path, currentIndex = 0, nextLevelData = []) => {
@@ -84,6 +84,23 @@ const getCounts = (levels) => {
   return counts
 }
 
+const filterUsers = (counts, limit = 10) => {
+  const toAdd = []
+  const keys = Object.keys(counts)
+
+  console.log('total users:', keys.length)
+
+  keys.forEach((key) => {
+    if (counts[key] > limit) {
+      toAdd.push(key)
+    }
+  })
+
+  console.log('should add', toAdd.length)
+
+  return toAdd
+}
+
 const calculateScore = (levels, counts) => {
   const score = {}
 
@@ -110,8 +127,36 @@ const calculateScore = (levels, counts) => {
   return score
 }
 
+const validateCounts = (levels) => {
+  const firstLevelUsers = _.flatMap(levels[0])
+  const secondLevelUsers = levels[1]
+
+  const inconsistentUsers = firstLevelUsers
+    .filter((user = {}, index) => {
+      const screenName = user.screen_name
+      const secondLevelData = secondLevelUsers[index]
+      const secondLevelUsersUnique = removeDupes(secondLevelData, 'screen_name')
+
+      // difference between friends_count user data and the total users fetched by the api
+      const diff = Math.abs(user.friends_count) - Math.abs(secondLevelUsersUnique.length)
+
+      if (diff > 3 && secondLevelUsersUnique.length !== 0) {
+        console.log('something wrong here?', screenName, user.friends_count, secondLevelUsersUnique.length)
+
+        return screenName
+      }
+
+      return false
+    })
+    .map((user) => user.screen_name)
+
+  return inconsistentUsers
+}
+
 module.exports = {
   getLevels,
   calculateScore,
-  getCounts
+  getCounts,
+  filterUsers,
+  validateCounts
 }

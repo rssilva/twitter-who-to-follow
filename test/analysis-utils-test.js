@@ -1,6 +1,7 @@
 const { describe, it, expect } = require('./setup')
-const { getLevels, getCounts, calculateScore } = require('../analysis-utils')
+const { getLevels, getCounts, calculateScore, filterUsers, validateCounts } = require('../analysis-utils')
 const scoreData = require('./fixtures/calculate-score-fixture')
+const validateCountsData = require('./fixtures/validate-counts-fixture')
 
 describe('analysis utils', () => {
   describe('getLevels', () => {
@@ -41,6 +42,22 @@ describe('analysis utils', () => {
         gandalf: 2,
         merry: 1
       })
+    })
+  })
+
+  describe('filterUsers', () => {
+    it('gets only users with counts above a specific value', () => {
+      const counts1 = getCounts(scoreData.levels, 2)
+      const counts2 = getCounts(scoreData.levels, 1)
+
+      expect(filterUsers(counts1, 2)).to.eql(['gandalf', 'frodo'])
+      expect(filterUsers(counts2, 1)).to.eql(['gandalf', 'elrond', 'frodo'])
+    })
+  })
+
+  describe('validateCounts', () => {
+    it('returns a list with users that has a difference between friends_count and the ones fetched by the api', () => {
+      expect(validateCounts(validateCountsData.levels)).to.eql(['sam'])
     })
   })
 })
