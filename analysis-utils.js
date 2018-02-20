@@ -20,7 +20,7 @@ const getCurrentLevelData = (users, path, currentIndex = 0, nextLevelData = []) 
           description: user.description,
           followers_count: user.followers_count,
           friends_count: user.friends_count,
-          listed_count: user.listed_count,
+          listed_count: user.listed_count
         }
       }))
 

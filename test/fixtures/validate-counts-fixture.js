@@ -22,7 +22,7 @@ module.exports = {
         { id: 8, screen_name: 'pippin' },
         { id: 9, screen_name: 'boromir' },
         { id: 10, screen_name: 'legolas' },
-        { id: 11, screen_name: 'aragorn' },
+        { id: 11, screen_name: 'aragorn' }
       ],
       // followed by aragorn
       [

@@ -63,7 +63,7 @@ describe('analysis utils', () => {
   })
 
   describe('parseData', () => {
-    it ('parses data to d3 graph format according the passed list', () => {
+    it('parses data to d3 graph format according the passed list', () => {
       const list = ['gandalf', 'arwen', 'elrond', 'frodo', 'galadriel']
       const parsed = parseData(parseDataData.levels, list)
 
