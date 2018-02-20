@@ -1,0 +1,40 @@
+{
+  "name": "who-to-follow",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "@rssilva",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "twit": "^2.2.9"
+  },
+  "devDependencies": {
+    "eslint": "^4.17.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^6.0.0",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^5.0.1",
+    "nyc": "^11.4.1"
+  },
+  "nyc": {
+    "per-file": true,
+    "include": [
+      "*.js"
+    ],
+    "exclude": [],
+    "reporter": [
+      "html",
+      "text-summary"
+    ],
+    "extension": [],
+    "all": true,
+    "report-dir": "./coverage"
+  }
+}
