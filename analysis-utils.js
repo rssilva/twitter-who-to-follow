@@ -1,5 +1,5 @@
 const fileUtils = require('./file-utils')
-const { removeDupes } = require('./object-utils')
+const { removeDupes } = require('./arrays-utils')
 const _ = require('lodash')
 const PATH = 'data-bkp/'
 
