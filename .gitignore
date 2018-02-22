@@ -3,4 +3,4 @@ data/
 coverage/
 .nyc_output/
 .DS_store
-results/*
+results/*.json
