@@ -42,9 +42,11 @@ const getFollowing = (screenName, cursor = -1, following = []) => {
       }
 
       if (!errors.length && (nextCursor === 0 || nextCursor === undefined)) {
-        saveLastFollowingFetched(screenName, '')
+        const lastUser = following[following.length - 1] || {}
 
-        console.log(`It seems that things are finished to find data for ${screenName}!`.green)
+        saveLastFollowingFetched(screenName, lastUser.screen_name)
+
+        console.log(`It seems that things are finished to find data for ${screenName}! The total size of the array is ${following.length}`.green)
 
         return Promise.resolve(following)
       }
