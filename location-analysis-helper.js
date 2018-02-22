@@ -37,10 +37,10 @@ const locationAnalysis = (levels, general, score) => {
     }
   })
 
-  fileUtils.writeFile('users-by-location.json', JSON.stringify(byLocation))
-  fileUtils.writeFile('location-score.json', JSON.stringify(_.sortBy(locationScore, 'score').reverse()))
-  fileUtils.writeFile('location-count.json', JSON.stringify(_.sortBy(locationScore, 'count').reverse()))
-  fileUtils.writeFile('location-user-quantity.json', JSON.stringify(_.sortBy(locationScore, 'userQuantity').reverse()))
+  fileUtils.writeFile('results/users-by-location.json', JSON.stringify(byLocation))
+  fileUtils.writeFile('results/location-score.json', JSON.stringify(_.sortBy(locationScore, 'score').reverse()))
+  fileUtils.writeFile('results/location-count.json', JSON.stringify(_.sortBy(locationScore, 'count').reverse()))
+  fileUtils.writeFile('results/location-user-quantity.json', JSON.stringify(_.sortBy(locationScore, 'userQuantity').reverse()))
 }
 
 module.exports = {
