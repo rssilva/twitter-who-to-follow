@@ -10,39 +10,39 @@ const {
   calculateScore
 } = require('./analysis-utils')
 // const { countTerms } = require('./description-analysis-helper')
+// const { locationAnalysis } = require('./location-analysis-helper')
 
 const PATH = 'fixed/'
 
 getLevels(rootUser, PATH).then((levels) => {
   const firstLevelUsers = _.flatMap(levels[0])
-  console.log(levels.length, levels[0].length)
-  validateCounts(levels)
+  // validateCounts(levels)
 
   const counts = getCounts(levels)
 
-  fileUtils.writeFile('counts.json', JSON.stringify(counts))
-
-  const filtered = filterUsers(counts, 20)
+  const filtered = filterUsers(counts, 70)
   const firstLevelScreenNames = firstLevelUsers.map((user) => user.screen_name)
-  const result = parseData(levels, filtered)
-
-  fileUtils.writeFile('result.json', JSON.stringify(result))
-
-  // const general = result
-  //   .map((node) => {
-  //     return {
-  //       name: node.name,
-  //       count: counts[node.name],
-  //       location: node.location,
-  //       listedCount: node.listedCount,
-  //       description: node.description
-  //     }
-  //   })
-
-  // const nonFollowedByRoot = general
-  //   .filter((node) => firstLevelScreenNames.indexOf(node.name) === -1)
-
+  const parsedLevels = parseData(levels, filtered)
   const score = calculateScore(levels, counts)
+
+  fileUtils.writeFile('results/parsed-levels.json', JSON.stringify(parsedLevels))
+
+  const general = parsedLevels
+    .map((node) => {
+      return {
+        screenName: node.name,
+        count: counts[node.name],
+        location: node.location.replace(/,.*/g, '').toLowerCase(),
+        listedCount: node.listedCount,
+        description: node.description
+      }
+    })
+
+  // locationAnalysis(levels, general, score)
+
+  const nonFollowedByRoot = general
+    .filter((node) => firstLevelScreenNames.indexOf(node.screenName) === -1)
+
   const scoreList = Object.keys(score).map((screenName) => {
     return {
       screenName,
@@ -56,12 +56,10 @@ getLevels(rootUser, PATH).then((levels) => {
   // const termCounts = countTerms(descriptions)
   // console.log(_.sortBy(termCounts, 'count').reverse())
   // fileUtils.writeFile('term-counts.json', JSON.stringify(termCounts))
-  // const countRanking = _.sortBy(nonFollowedByRoot, 'count').reverse()
-  // console.log(countRanking)
-  // const listedRanking = _.sortBy(nonFollowedByRoot, 'listedCount').reverse()
-  // console.log(listedRanking)
-  // console.log(_.groupBy(countRanking, 'location'))
-  console.log(_.sortBy(scoreList, 'score').reverse().slice(0, 50))
+
+  // const usersByCount = _.sortBy(general, 'count').reverse()
+  // fileUtils.writeFile('results/users-by-count.json', JSON.stringify(usersByCount))
+  // fileUtils.writeFile('results/users-by-score.json', JSON.stringify(scoreList.reverse()))
 }).catch((err) => {
   console.log(err)
   throw err
