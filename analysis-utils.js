@@ -156,14 +156,16 @@ const validateCounts = (levels) => {
 // this method parses the levels data to the d3.js graph
 const parseData = (levels, toBeAdded) => {
   let data = []
+
+  // this array will avoid to add users more than once
   const added = []
 
   levels.forEach((level, levelIndex) => {
-    level.forEach((levelUsers) => {
+    level.forEach((levelUsers, levelUserIndex) => {
       levelUsers.forEach((levelUser) => {
         const screenName = levelUser.screen_name
         const nextLevel = levels[levelIndex + 1]
-        const imports = levelIndex > 0 ? [] : getImports(nextLevel, levelIndex, toBeAdded)
+        const imports = levelIndex > 0 ? [] : getImports(nextLevel, levelUserIndex, toBeAdded)
 
         if (added.indexOf(screenName) === -1 && toBeAdded.indexOf(screenName) !== -1) {
           data.push({
@@ -182,8 +184,8 @@ const parseData = (levels, toBeAdded) => {
   return data
 }
 
-const getImports = (nextLevelUsers, currentIndex, filteredList) => {
-  const imports = nextLevelUsers[currentIndex]
+const getImports = (nextLevelUsers, levelUserIndex, filteredList) => {
+  const imports = nextLevelUsers[levelUserIndex]
     .map((levelUser) => levelUser.screen_name)
     .filter((secondLevelUser) => filteredList.indexOf(secondLevelUser) !== -1)
 
