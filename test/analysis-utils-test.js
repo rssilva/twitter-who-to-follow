@@ -77,7 +77,7 @@ describe('analysis utils', () => {
         {
           name: 'arwen',
           size: 0,
-          imports: [ 'elrond', 'frodo', 'galadriel' ],
+          imports: [ 'elrond', 'gandalf', 'galadriel' ],
           location: 'rivendell'
         },
         { name: 'elrond', size: 0, imports: [], location: undefined },
