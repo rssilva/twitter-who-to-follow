@@ -9,13 +9,16 @@ const {
   parseData,
   calculateScore
 } = require('./analysis-utils')
-// const { countTerms } = require('./description-analysis-helper')
-// const { locationAnalysis } = require('./location-analysis-helper')
+const { descriptionAnalysis } = require('./description-analysis-helper')
+const { locationAnalysis } = require('./location-analysis-helper')
 
-const PATH = 'fixed/'
+const PATH = process.argv[3] || 'data/'
 
 getLevels(rootUser, PATH).then((levels) => {
   const firstLevelUsers = _.flatMap(levels[0])
+
+  // This will check the difference between user following counts fetched from the rootUser
+  //  to the ones fetched on the first level
   // validateCounts(levels)
 
   const counts = getCounts(levels)
@@ -38,8 +41,6 @@ getLevels(rootUser, PATH).then((levels) => {
       }
     })
 
-  // locationAnalysis(levels, general, score)
-
   const nonFollowedByRoot = general
     .filter((node) => firstLevelScreenNames.indexOf(node.screenName) === -1)
 
@@ -52,14 +53,14 @@ getLevels(rootUser, PATH).then((levels) => {
     .filter((node) => firstLevelScreenNames.indexOf(node.screenName) === -1)
 
   // console.log(_.sortBy(general, 'count').reverse())
-  // const descriptions = _.sortBy(nonFollowedByRoot, 'count').reverse().map((user) => user.description)
-  // const termCounts = countTerms(descriptions)
-  // console.log(_.sortBy(termCounts, 'count').reverse())
-  // fileUtils.writeFile('term-counts.json', JSON.stringify(termCounts))
+  fileUtils.writeFile('results/users-by-count.json', JSON.stringify(_.sortBy(general, 'count').reverse()))
+  fileUtils.writeFile('results/users-by-score.json', JSON.stringify(_.sortBy(scoreList, 'count').reverse()))
 
-  // const usersByCount = _.sortBy(general, 'count').reverse()
-  // fileUtils.writeFile('results/users-by-count.json', JSON.stringify(usersByCount))
-  // fileUtils.writeFile('results/users-by-score.json', JSON.stringify(scoreList.reverse()))
+  // Location analysis
+  locationAnalysis(levels, general, score)
+
+  // Description/bio words analysis
+  descriptionAnalysis(general, nonFollowedByRoot)
 }).catch((err) => {
   console.log(err)
   throw err
