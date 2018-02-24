@@ -172,7 +172,8 @@ const parseData = (levels, toBeAdded) => {
             name: screenName,
             size: 0,
             imports,
-            location: levelUser.location
+            location: levelUser.location,
+            description: levelUser.description
           })
 
           added.push(screenName)
