@@ -2,6 +2,7 @@ const Twit = require('twit')
 const fs = require('fs')
 const fileUtils = require('./file-utils')
 const config = require('./config')
+const { removeDupes } = require('./arrays-utils')
 require('colors')
 
 const twit = new Twit({
@@ -28,7 +29,7 @@ const getFollowing = (screenName, cursor = -1, following = []) => {
 
       following = following.concat(users)
 
-      saveFollowing(screenName, following)
+      saveFollowing(screenName, removeDupes(following, 'id'))
       saveCursor(screenName, nextCursor)
 
       if (!errors.length && nextCursor !== 0 && nextCursor !== undefined) {
