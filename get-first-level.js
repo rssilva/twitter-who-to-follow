@@ -1,9 +1,11 @@
 const screenName = process.argv[2]
 const utils = require('./utils')
+const fileUtils = require('./file-utils')
 
 utils.get(screenName)
   .then(() => {
     console.log('done')
+    fileUtils.writeFile(`data/${screenName}-current-following-fetched`, '')
   })
   .catch((err) => {
     setTimeout(() => {
