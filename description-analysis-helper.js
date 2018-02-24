@@ -1,3 +1,4 @@
+const fileUtils = require('./file-utils')
 const _ = require('lodash')
 const SIGNS_PATTERN = /(, |\. |: )/g
 const TERMS_TO_REMOVE = ['of', 'a', 'and', 'at', '&', 'to', 'for', 'i', 'in', '|', 'on', 'with', 'my', 'are', '_', '•', 'is', '-', 'by', 'you', 'or', 'an', 'the', 'os', 'it']
@@ -63,8 +64,23 @@ const groupUsersByTerm = (terms, users) => {
   return grouped
 }
 
+const descriptionAnalysis = (general, nonFollowedByRoot) => {
+  const descriptions = _.sortBy(general, 'count').reverse().map((user) => user.description)
+  const termsByCount = countTerms(descriptions)
+  const terms = termsByCount
+    .filter((item) => item.term)
+    .map((item) => item.term)
+    .slice(0, 20) // top 20 words
+
+  const groupedByTerm = groupUsersByTerm(terms, nonFollowedByRoot)
+
+  fileUtils.writeFile('results/terms-by-count.json', JSON.stringify(_.sortBy(termsByCount, 'count').reverse()))
+  fileUtils.writeFile('results/grouped-by-term.json', JSON.stringify(groupedByTerm))
+}
+
 module.exports = {
   getTerms,
   countTerms,
-  groupUsersByTerm
+  groupUsersByTerm,
+  descriptionAnalysis
 }
