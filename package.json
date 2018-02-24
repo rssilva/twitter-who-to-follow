@@ -9,6 +9,7 @@
   "author": "@rssilva",
   "license": "MIT",
   "dependencies": {
+    "colors": "^1.1.2",
     "lodash": "^4.17.4",
     "twit": "^2.2.9"
   },
