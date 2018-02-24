@@ -11,8 +11,10 @@ const {
 } = require('./analysis-utils')
 const { descriptionAnalysis } = require('./description-analysis-helper')
 const { locationAnalysis } = require('./location-analysis-helper')
+const config = require('./config')
 
 const PATH = process.argv[3] || 'data/'
+const { APPEARENCES_COUNT_MIN_LIMIT } = config
 
 getLevels(rootUser, PATH).then((levels) => {
   const firstLevelUsers = _.flatMap(levels[0])
@@ -23,7 +25,7 @@ getLevels(rootUser, PATH).then((levels) => {
 
   const counts = getCounts(levels)
 
-  const filtered = filterUsers(counts, 70)
+  const filtered = filterUsers(counts, APPEARENCES_COUNT_MIN_LIMIT)
   const firstLevelScreenNames = firstLevelUsers.map((user) => user.screen_name)
   const parsedLevels = parseData(levels, filtered)
   const score = calculateScore(levels, counts)
