@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha ./test --recursive"
+    "test": "./node_modules/.bin/mocha ./test --recursive",
+    "coverage": "./node_modules/.bin/nyc ./node_modules/.bin/mocha ./test --recursive"
   },
   "author": "@rssilva",
   "license": "MIT",
